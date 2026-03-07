@@ -1,8 +1,12 @@
 #!/bin/bash
 
-# 1. Download Flutter
-echo "Downloading Flutter..."
-git clone https://github.com/flutter/flutter.git -b stable --depth 1
+# 1. Download Flutter if it doesn't exist
+if [ ! -d "flutter" ]; then
+  echo "Downloading Flutter..."
+  git clone https://github.com/flutter/flutter.git -b stable --depth 1
+else
+  echo "Flutter already exists, skipping clone."
+fi
 
 # 2. Add Flutter to PATH
 export PATH="$PATH:`pwd`/flutter/bin"
@@ -19,5 +23,4 @@ flutter pub get
 echo "Building Web Release..."
 flutter build web --release
 
-# 6. Cleanup (optional, Vercel cleans up anyway)
 echo "Build finished!"
