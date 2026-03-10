@@ -28,56 +28,78 @@ class _SideMenuState extends State<SideMenu> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(right: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
+          border: Border(right: BorderSide(color: Colors.grey.withOpacity(0.1))),
         ),
         child: Column(
           children: [
             const _DrawerHeader(),
-            const _SearchBar(),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  _buildMenuItem("Dashboard", Icons.grid_view_rounded, 0),
-                  
-                  const _SectionHeader(title: "Sales"),
-                  _buildMenuItem("Orders", Icons.shopping_cart_outlined, 1, badge: "12"),
-                  _buildMenuItem("Estimates / Quotation", Icons.request_page_outlined, 2),
-                  _buildMenuItem("Proforma Invoice", Icons.receipt_long_outlined, 3),
-                  _buildMenuItem("Payments", Icons.payments_outlined, 4),
-                  _buildMenuItem("Delivery Challan", Icons.local_shipping_outlined, 5),
-                  _buildMenuItem("Sales Return", Icons.assignment_return_outlined, 6),
-                  _buildMenuItem("Secondary Sales", Icons.storefront_outlined, 7),
-                  _buildMenuItem("Primary Sales", Icons.business_outlined, 8),
+                  const _SectionHeader(title: "MENU", trailingIcon: Icons.keyboard_arrow_up_rounded),
+                  _buildMenuItem("Dashboard", Icons.grid_view_rounded, 0, isActive: _selectedIndex == 0),
+                  const SizedBox(height: 4),
 
-                  const _SectionHeader(title: "Operations"),
-                  _buildMenuItem("Customers", Icons.people_outline, 9),
-                  _buildMenuItem("Distribution", Icons.local_shipping_outlined, 10),
-                  _buildMenuItem("Team", Icons.groups_outlined, 11),
+                  const _SectionHeader(title: "SALES", trailingIcon: Icons.keyboard_arrow_down_rounded),
+                  _buildMenuItem("Orders", Icons.shopping_cart_outlined, 1, badge: "12", isActive: _selectedIndex == 1),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Estimates / Quotation", Icons.request_page_outlined, 2, isActive: _selectedIndex == 2),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Proforma Invoice", Icons.receipt_long_outlined, 3, isActive: _selectedIndex == 3),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Payments", Icons.payments_outlined, 4, isActive: _selectedIndex == 4),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Delivery Challan", Icons.local_shipping_outlined, 5, isActive: _selectedIndex == 5),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Sales Return", Icons.assignment_return_outlined, 6, isActive: _selectedIndex == 6),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Secondary Sales", Icons.storefront_outlined, 7, isActive: _selectedIndex == 7),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Primary Sales", Icons.business_outlined, 8, isActive: _selectedIndex == 8),
 
-                  const _SectionHeader(title: "Field Ops"),
-                  _buildMenuItem("Beats", Icons.map_outlined, 12),
-                  _buildMenuItem("Routes", Icons.route_outlined, 13),
-                  _buildMenuItem("Network", Icons.hub_outlined, 14),
-                  _buildMenuItem("Products & SKU", Icons.inventory_2_outlined, 15),
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: "OPERATIONS", trailingIcon: Icons.keyboard_arrow_down_rounded),
+                  _buildMenuItem("Customers", Icons.people_outline, 9, isActive: _selectedIndex == 9),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Distribution", Icons.local_shipping_outlined, 10, isActive: _selectedIndex == 10),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Team", Icons.groups_outlined, 11, badge: "3", isActive: _selectedIndex == 11),
 
-                  const _SectionHeader(title: "Performance"),
-                  _buildMenuItem("Growth & Tracking", Icons.trending_up_rounded, 16),
-                  _buildMenuItem("Loyalty", Icons.loyalty_outlined, 17),
-                  _buildMenuItem("Schemes", Icons.card_giftcard_outlined, 18),
-                  _buildMenuItem("Targets", Icons.track_changes_outlined, 19),
-                  _buildMenuItem("Attendance", Icons.how_to_reg_outlined, 20),
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: "FIELD OPS", trailingIcon: Icons.keyboard_arrow_down_rounded),
+                  _buildMenuItem("Beats", Icons.map_outlined, 12, isActive: _selectedIndex == 12),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Routes", Icons.route_outlined, 13, isActive: _selectedIndex == 13),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Network", Icons.hub_outlined, 14, isActive: _selectedIndex == 14),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Products & SKU", Icons.inventory_2_outlined, 15, isActive: _selectedIndex == 15),
 
-                  const _SectionHeader(title: "Payroll"),
-                  _buildMenuItem("Payroll & Salary", Icons.account_balance_wallet_outlined, 21),
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: "PERFORMANCE", trailingIcon: Icons.keyboard_arrow_down_rounded),
+                  _buildMenuItem("Growth & Tracking", Icons.trending_up_rounded, 16, isActive: _selectedIndex == 16),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Loyalty", Icons.loyalty_outlined, 17, isActive: _selectedIndex == 17),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Schemes", Icons.card_giftcard_outlined, 18, isActive: _selectedIndex == 18),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Targets", Icons.track_changes_outlined, 19, isActive: _selectedIndex == 19),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Attendance", Icons.how_to_reg_outlined, 20, isActive: _selectedIndex == 20),
 
-                  const Divider(height: 32, thickness: 0.5),
-                  _buildMenuItem("Reports", Icons.assessment_outlined, 22),
-                  _buildMenuItem("Settings", Icons.settings_outlined, 23),
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: "PAYROLL", trailingIcon: Icons.keyboard_arrow_down_rounded),
+                  _buildMenuItem("Payroll & Salary", Icons.account_balance_wallet_outlined, 21, isActive: _selectedIndex == 21),
 
-                  const SizedBox(height: 24),
-                  const _ModeToggle(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
+                  const _SectionHeader(title: "OTHERS", trailingIcon: Icons.keyboard_arrow_up_rounded),
+                  _buildMenuItem("Reports", Icons.assessment_outlined, 22, isActive: _selectedIndex == 22),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Settings", Icons.settings_outlined, 23, isActive: _selectedIndex == 23),
+                  const SizedBox(height: 4),
+                  _buildMenuItem("Logout", Icons.logout_rounded, 24, isActive: _selectedIndex == 24),
+
                 ],
               ),
             ),
@@ -88,12 +110,12 @@ class _SideMenuState extends State<SideMenu> {
     );
   }
 
-  Widget _buildMenuItem(String title, IconData icon, int index, {String? badge}) {
+  Widget _buildMenuItem(String title, IconData icon, int index, {String? badge, bool isActive = false}) {
     return DrawerListTile(
       title: title,
       icon: icon,
       press: () => _onItemTapped(index),
-      isActive: _selectedIndex == index,
+      isActive: isActive,
       badge: badge,
     );
   }
@@ -105,85 +127,63 @@ class _DrawerHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 40, bottom: 20, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 40, bottom: 32, left: 16, right: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2D3142), Color(0xFF1A1D29)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: const Center(
-              child: Icon(Icons.diamond_outlined, color: Colors.amberAccent, size: 24),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          Row(
             children: [
-              const Text(
-                "TAJ GROUP",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: 1.2,
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(Icons.bubble_chart_rounded, color: Colors.white, size: 20),
                 ),
               ),
-              Text(
-                "Enterprise ERP",
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[500],
-                  letterSpacing: 0.5,
-                ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        "Tajnova Store",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text("PRO", style: TextStyle(color: Color(0xFF10B981), fontSize: 8, fontWeight: FontWeight.bold)),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(Icons.lock_outline_rounded, size: 12, color: Colors.grey[500]),
+                      const SizedBox(width: 4),
+                      Text("Private", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey[500])),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
+          Icon(Icons.unfold_more_rounded, size: 20, color: Colors.grey[500]),
         ],
-      ),
-    );
-  }
-}
-
-class _SearchBar extends StatelessWidget {
-  const _SearchBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        height: 44,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const TextField(
-          decoration: InputDecoration(
-            hintText: "Search...",
-            hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-            prefixIcon: Icon(Icons.search, color: Colors.grey, size: 20),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 12),
-          ),
-        ),
       ),
     );
   }
@@ -191,19 +191,27 @@ class _SearchBar extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final IconData trailingIcon;
+  const _SectionHeader({required this.title, required this.trailingIcon});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 16),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Colors.grey[500],
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+      padding: const EdgeInsets.only(left: 4, bottom: 12, top: 16, right: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+          Icon(trailingIcon, size: 16, color: Colors.grey[500]),
+        ],
       ),
     );
   }
@@ -227,91 +235,49 @@ class DrawerListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      decoration: BoxDecoration(
-        color: isActive ? const Color(0xFFF4F5F7) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        onTap: press,
-        dense: true,
-        visualDensity: const VisualDensity(vertical: -2),
-        leading: Icon(
-          icon,
-          size: 20,
-          color: isActive ? const Color(0xFF2D3142) : Colors.grey[600],
+    return InkWell(
+      onTap: press,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.black : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            color: isActive ? const Color(0xFF2D3142) : Colors.grey[600],
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-          ),
-        ),
-        trailing: badge != null
-            ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF05156),
-                  borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isActive ? Colors.white : Colors.grey[800],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isActive ? Colors.white : Colors.grey[800],
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
                 ),
-                child: Text(
-                  badge!,
-                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                ),
-              )
-            : null,
-      ),
-    );
-  }
-}
-
-class _ModeToggle extends StatelessWidget {
-  const _ModeToggle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F5F7),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))
-                ],
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.wb_sunny_outlined, size: 16, color: Color(0xFF2D3142)),
-                  SizedBox(width: 8),
-                  Text("Light", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2D3142))),
-                ],
               ),
             ),
-          ),
-          const Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.nightlight_outlined, size: 16, color: Colors.grey),
-                SizedBox(width: 8),
-                Text("Dark", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey)),
-              ],
-            ),
-          ),
-        ],
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF97316),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    badge!,
+                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -323,49 +289,48 @@ class _SidebarUserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
-      ),
+      padding: const EdgeInsets.all(20),
       child: Row(
         children: [
           const CircleAvatar(
             radius: 18,
-            backgroundImage: NetworkImage("https://i.pravatar.cc/150?img=11"),
+            backgroundImage: NetworkImage("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  "Rohit Kumar",
+                const Text(
+                  "Rohit Sharma",
                   style: TextStyle(
-                    color: Color(0xFF2D3142),
+                    color: Colors.black87,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  "rohit@tajpro.com",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 11,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Row(
+                   children: [
+                      const Icon(Icons.verified, color: Color(0xFF10B981), size: 10),
+                      const SizedBox(width: 4),
+                      Text(
+                        "rohit@tajpro.com",
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 11,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                   ],
+                )
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout_outlined, color: Colors.grey, size: 18),
-            onPressed: () {},
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
+          Icon(Icons.more_horiz, color: Colors.grey[500], size: 20),
         ],
       ),
     );
   }
 }
+

@@ -1,11 +1,12 @@
-// Main application shell with responsive navigation
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
-import '../responsive.dart';
-import 'components/side_menu.dart';
-import 'components/bottom_nav_bar.dart';
-import 'orders/orders_screen.dart';
-import 'dashboard/dashboard_screen.dart';
+import 'package:tajpro/responsive.dart';
+import 'package:tajpro/providers/user_provider.dart';
+import 'package:tajpro/screens/components/side_menu.dart';
+import 'package:tajpro/screens/components/bottom_nav_bar.dart';
+import 'package:tajpro/screens/orders/orders_screen.dart';
+import 'package:tajpro/screens/dashboard/dashboard_screen.dart';
 import 'team/team_screen.dart';
 import 'network/network_screen.dart';
 import 'customers/customers_screen.dart';
@@ -28,17 +29,35 @@ import 'reports/reports_screen.dart';
 import 'payroll/payroll_screen.dart';
 import 'settings/settings_screen.dart';
 import 'products/products_screen.dart';
+import 'stockist/super_stockist_main_screen.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    
+    // Role-based Router
+    if (userProvider.currentRole == UserRole.superStockist) {
+      return const SuperStockistMainScreen();
+    }
+    
+    // Default to the Original System Admin Dashboard
+    return const AdminMainScreen();
+  }
 }
 
-class _MainScreenState extends State<MainScreen> {
+class AdminMainScreen extends StatefulWidget {
+  const AdminMainScreen({super.key});
+
+  @override
+  State<AdminMainScreen> createState() => _AdminMainScreenState();
+}
+
+class _AdminMainScreenState extends State<AdminMainScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _currentScreenIndex = 0; // 0 for Dashboard, 1 for Orders
+  int _currentScreenIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -150,114 +169,8 @@ class _MainScreenState extends State<MainScreen> {
       case 23:
         return const SettingsScreen();
       default:
-        // Placeholder for unimplemented screens
-        return Scaffold(
-          backgroundColor: bgColor,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.construction_rounded, size: 64, color: textSecondaryColor.withValues(alpha: 0.5)),
-                const SizedBox(height: 16),
-                const Text(
-                  "Screen Under Development",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textPrimaryColor),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "We're currently building this feature for you.",
-                  style: TextStyle(color: textSecondaryColor),
-                ),
-              ],
-            ),
-          ),
-        );
+        return const Scaffold(body: Center(child: Text("Development Placeholder")));
     }
-  }
-
-  void _showGlobalQuickAccess(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.45,
-        decoration: const BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(color: Colors.black26, blurRadius: 20, spreadRadius: 5)
-          ]
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 50,
-              height: 5,
-              decoration: BoxDecoration(
-                color: textSecondaryColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(5),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              "Management Hub",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: textPrimaryColor,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 20,
-                children: [
-                  _buildMenuIcon(Icons.add_shopping_cart, "Order", primaryColor),
-                  _buildMenuIcon(Icons.person_add_outlined, "Customer", successColor),
-                  _buildMenuIcon(Icons.route_outlined, "Route", const Color(0xFFFF7A18)),
-                  _buildMenuIcon(Icons.payments_outlined, "Payment", const Color(0xFFEE5D50)),
-                  _buildMenuIcon(Icons.inventory_2_outlined, "Inventory", const Color(0xFF9333EA)),
-                  _buildMenuIcon(Icons.analytics_outlined, "Report", const Color(0xFF0EA5E9)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMenuIcon(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: color, size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: textPrimaryColor,
-          ),
-        ),
-      ],
-    );
   }
 }
 
@@ -269,6 +182,7 @@ class DashboardLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return DashboardScreen(
       onIndexChanged: onIndexChanged,
+      selectedIndex: 0, // Initial index for the dashboard
       openDrawer: () {
         Scaffold.of(context).openDrawer();
       },

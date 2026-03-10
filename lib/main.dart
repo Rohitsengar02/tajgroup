@@ -3,8 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'constants.dart';
 import 'screens/main_screen.dart';
 
+import 'screens/onboarding/onboarding_screen.dart';
+
+import 'package:provider/provider.dart';
+import 'providers/user_provider.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,15 +27,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TajPro CRM ERP',
-      theme: ThemeData.light().copyWith(
+      theme: ThemeData(
+        useMaterial3: true,
         scaffoldBackgroundColor: bgColor,
-        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme).apply(
-          bodyColor: textPrimaryColor,
-          displayColor: textPrimaryColor,
-        ),
+        primaryColor: primaryColor,
+        brightness: Brightness.light,
+        textTheme: GoogleFonts.interTextTheme(),
         canvasColor: surfaceColor,
       ),
-      home: const MainScreen(),
+      home: const OnboardingScreen(),
     );
   }
 }

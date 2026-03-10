@@ -13,7 +13,7 @@ class NotificationsPanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-             color: Colors.black.withValues(alpha: 0.02),
+             color: Colors.black.withOpacity(0.02),
              blurRadius: 10,
              offset: const Offset(0, 5),
           )
@@ -38,7 +38,7 @@ class NotificationsPanel extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: primaryColor.withValues(alpha: 0.8),
+                  color: primaryColor.withOpacity(0.8),
                 ),
               ),
             ],
@@ -62,7 +62,7 @@ class NotificationsPanel extends StatelessWidget {
            Container(
              padding: const EdgeInsets.all(8),
              decoration: BoxDecoration(
-               color: iconColor.withValues(alpha: 0.1),
+               color: iconColor.withOpacity(0.1),
                shape: BoxShape.circle,
              ),
              child: Icon(icon, color: iconColor, size: 20),
