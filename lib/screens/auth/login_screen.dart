@@ -14,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _isObscure = true;
 
+
   @override
   Widget build(BuildContext context) {
     bool isDesktop = Responsive.isDesktop(context);

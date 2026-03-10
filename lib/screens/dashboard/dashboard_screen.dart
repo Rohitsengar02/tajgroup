@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
+import 'package:carousel_slider_plus/carousel_slider_plus.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:tajpro/responsive.dart';
 
 // ─── Constants ───────────────────────────────────────────────
@@ -267,6 +270,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         SizedBox(height: defaultPadding),
         _SalesPerformance(),
         SizedBox(height: defaultPadding),
+        _MarketMap(),
+        SizedBox(height: defaultPadding),
         _RecentTransactions(),
         SizedBox(height: defaultPadding),
         _TopMarket(),
@@ -291,6 +296,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           child: Column(
             children: [
               _TotalSalesOverview(),
+              SizedBox(height: defaultPadding),
+              _MarketMap(),
               SizedBox(height: defaultPadding),
               _RecentTransactions(),
               SizedBox(height: defaultPadding),
@@ -522,14 +529,23 @@ class _AnimatedKpiRow extends StatelessWidget {
 
     final isMobile = Responsive.isMobile(context);
     if (isMobile) {
-      return GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 1.55,
-        children: kpis.asMap().entries.map((e) => _KpiCard(data: e.value, delay: e.key * 80)).toList(),
+      return CarouselSlider(
+        options: CarouselOptions(
+          height: 180,
+          viewportFraction: 0.85,
+          enlargeCenterPage: true,
+          enableInfiniteScroll: true,
+          autoPlay: true,
+          autoPlayInterval: const Duration(seconds: 4),
+          autoPlayAnimationDuration: const Duration(milliseconds: 800),
+          autoPlayCurve: Curves.fastOutSlowIn,
+        ),
+        items: kpis.asMap().entries.map((e) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: _KpiCard(data: e.value, delay: 0), // No delay needed for carousel items
+          );
+        }).toList(),
       );
     }
     return Row(
@@ -1768,6 +1784,191 @@ class _HoverChipState extends State<_HoverChip> {
             Icon(Icons.arrow_drop_down, size: 16, color: _hover ? widget.color : Colors.black54),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── India Market Map ──────────────────────────────────────────
+class _MarketMap extends StatelessWidget {
+  const _MarketMap();
+
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = Responsive.isMobile(context);
+    
+    return DashboardCard(
+      padding: const EdgeInsets.all(0),
+      child: Container(
+        height: isMobile ? 380 : 520,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: Colors.white,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            // The Real Map (Centered and Zoomed on India)
+            FlutterMap(
+              options: MapOptions(
+                initialCenter: const LatLng(21.5000, 78.9629),
+                initialZoom: isMobile ? 4.0 : 5.2,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                  subdomains: const ['a', 'b', 'c', 'd'],
+                  userAgentPackageName: 'com.tajpro.app',
+                ),
+                MarkerLayer(
+                  markers: [
+                    _buildMapMarker(context, const LatLng(19.0760, 72.8777), "Mumbai Cluster", "₹ 42.5L", isHighlighted: true),
+                    _buildMapMarker(context, const LatLng(28.6139, 77.2090), "Delhi NCR Hub", "₹ 38.2L", isHighlighted: true),
+                    _buildMapMarker(context, const LatLng(12.9716, 77.5946), "Bangalore Hub", "₹ 24.8L"),
+                    _buildMapMarker(context, const LatLng(22.5726, 88.3639), "Kolkata Cluster", "₹ 18.4L"),
+                    _buildMapMarker(context, const LatLng(13.0827, 80.2707), "Chennai Hub", "₹ 15.2L"),
+                  ],
+                ),
+              ],
+            ),
+            
+            // Stats Overlay (Left Side)
+            Positioned(
+              left: 20,
+              top: 20,
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                width: isMobile ? 220 : 280,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Market Distribution", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: textPrimaryColor)),
+                    const Text("Live supply chain tracking", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 28),
+                    _buildMapStat("Primary Market", "₹ 1.25 Cr", "Maharashtra"),
+                    const SizedBox(height: 20),
+                    _buildMapStat("Market Growth", "+34.5%", "North Region"),
+                    const SizedBox(height: 20),
+                    _buildMapStat("Active Hubs", "12 Hubs", "Across India"),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Market Filters (Right Side)
+            Positioned(
+              right: 20,
+              top: 20,
+              child: Row(
+                children: [
+                  _buildMapChip("India Market"),
+                  const SizedBox(width: 8),
+                  _buildMapChip("All Products"),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Marker _buildMapMarker(BuildContext context, LatLng point, String title, String val, {bool isHighlighted = false}) {
+    return Marker(
+      point: point,
+      width: 150,
+      height: 70,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isHighlighted ? const Color(0xFF0F172A) : const Color(0xFF334155),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ],
+              border: isHighlighted ? Border.all(color: primaryColor.withOpacity(0.5), width: 1) : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 24, height: 24,
+                  decoration: BoxDecoration(
+                    color: isHighlighted ? primaryColor : Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.location_on_rounded,
+                      color: isHighlighted ? Colors.white : primaryColor,
+                      size: 14,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(title, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 9, fontWeight: FontWeight.bold)),
+                    Text(val, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 5,
+            child: Container(width: 2, height: 8, color: isHighlighted ? const Color(0xFF0F172A) : const Color(0xFF334155)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMapStat(String label, String val, String sub) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 10, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(val, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: textPrimaryColor, letterSpacing: -1)),
+        Text(sub, style: TextStyle(color: primaryColor, fontSize: 10, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildMapChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10)],
+      ),
+      child: Row(
+        children: [
+          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+          const SizedBox(width: 4),
+          const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Colors.blueAccent),
+        ],
       ),
     );
   }

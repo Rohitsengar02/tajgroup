@@ -8,7 +8,11 @@ import 'screens/onboarding/onboarding_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/user_provider.dart';
 
+import 'providers/user_provider.dart';
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(
     MultiProvider(
       providers: [
