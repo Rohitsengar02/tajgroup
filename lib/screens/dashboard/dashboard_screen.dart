@@ -1793,93 +1793,117 @@ class _HoverChipState extends State<_HoverChip> {
 class _MarketMap extends StatelessWidget {
   const _MarketMap();
 
-  @override
   Widget build(BuildContext context) {
     bool isMobile = Responsive.isMobile(context);
     
-    return DashboardCard(
-      padding: const EdgeInsets.all(0),
-      child: Container(
-        height: isMobile ? 380 : 520,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          color: Colors.white,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            // The Real Map (Centered and Zoomed on India)
-            FlutterMap(
-              options: MapOptions(
-                initialCenter: const LatLng(21.5000, 78.9629),
-                initialZoom: isMobile ? 4.0 : 5.2,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-                ),
-              ),
+    return Column(
+      children: [
+        DashboardCard(
+          padding: const EdgeInsets.all(0),
+          child: Container(
+            height: isMobile ? 320 : 520,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              color: Colors.white,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
               children: [
-                TileLayer(
-                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                  subdomains: const ['a', 'b', 'c', 'd'],
-                  userAgentPackageName: 'com.tajpro.app',
-                ),
-                MarkerLayer(
-                  markers: [
-                    _buildMapMarker(context, const LatLng(19.0760, 72.8777), "Mumbai Cluster", "₹ 42.5L", isHighlighted: true),
-                    _buildMapMarker(context, const LatLng(28.6139, 77.2090), "Delhi NCR Hub", "₹ 38.2L", isHighlighted: true),
-                    _buildMapMarker(context, const LatLng(12.9716, 77.5946), "Bangalore Hub", "₹ 24.8L"),
-                    _buildMapMarker(context, const LatLng(22.5726, 88.3639), "Kolkata Cluster", "₹ 18.4L"),
-                    _buildMapMarker(context, const LatLng(13.0827, 80.2707), "Chennai Hub", "₹ 15.2L"),
+                // The Real Map (Centered and Zoomed on India)
+                FlutterMap(
+                  options: MapOptions(
+                    initialCenter: const LatLng(21.5000, 78.9629),
+                    initialZoom: isMobile ? 4.1 : 5.2,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                    ),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                      subdomains: const ['a', 'b', 'c', 'd'],
+                      userAgentPackageName: 'com.tajpro.app',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        _buildMapMarker(context, const LatLng(19.0760, 72.8777), "Mumbai Cluster", "₹ 42.5L", isHighlighted: true),
+                        _buildMapMarker(context, const LatLng(28.6139, 77.2090), "Delhi NCR Hub", "₹ 38.2L", isHighlighted: true),
+                        _buildMapMarker(context, const LatLng(12.9716, 77.5946), "Bangalore Hub", "₹ 24.8L", isHighlighted: true),
+                        _buildMapMarker(context, const LatLng(22.5726, 88.3639), "Kolkata Cluster", "₹ 18.4L", isHighlighted: true),
+                        _buildMapMarker(context, const LatLng(13.0827, 80.2707), "Chennai Hub", "₹ 15.2L"),
+                        _buildMapMarker(context, const LatLng(17.3850, 78.4867), "Hyderabad Cluster", "₹ 12.8L"),
+                      ],
+                    ),
                   ],
+                ),
+                
+                // Stats Overlay (Desktop only as overlay)
+                if (!isMobile)
+                  Positioned(
+                    left: 20,
+                    top: 20,
+                    child: _buildStatsContainer(context, isMobile),
+                  ),
+                
+                // Market Filters (Right Side)
+                Positioned(
+                  right: 20,
+                  top: 20,
+                  child: Row(
+                    children: [
+                      _buildMapChip("India Market"),
+                      const SizedBox(width: 8),
+                      _buildMapChip("All Products"),
+                    ],
+                  ),
                 ),
               ],
             ),
-            
-            // Stats Overlay (Left Side)
-            Positioned(
-              left: 20,
-              top: 20,
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                width: isMobile ? 220 : 280,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text("Market Distribution", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: textPrimaryColor)),
-                    const Text("Live supply chain tracking", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 28),
-                    _buildMapStat("Primary Market", "₹ 1.25 Cr", "Maharashtra"),
-                    const SizedBox(height: 20),
-                    _buildMapStat("Market Growth", "+34.5%", "North Region"),
-                    const SizedBox(height: 20),
-                    _buildMapStat("Active Hubs", "12 Hubs", "Across India"),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Market Filters (Right Side)
-            Positioned(
-              right: 20,
-              top: 20,
-              child: Row(
-                children: [
-                  _buildMapChip("India Market"),
-                  const SizedBox(width: 8),
-                  _buildMapChip("All Products"),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
+        if (isMobile) ...[
+          const SizedBox(height: 16),
+          _buildStatsContainer(context, isMobile),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStatsContainer(BuildContext context, bool isMobile) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      width: isMobile ? double.infinity : 280,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(isMobile ? 1.0 : 0.9),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text("Market Distribution", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: textPrimaryColor)),
+          const Text("Live supply chain tracking", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 28),
+          if (isMobile)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildMapStat("Primary Market", "₹ 1.25 Cr", "Maharashtra"),
+                _buildMapStat("Market Growth", "+34.5%", "North Region"),
+                _buildMapStat("Active Hubs", "12 Hubs", "Across India"),
+              ],
+            )
+          else ...[
+            _buildMapStat("Primary Market", "₹ 1.25 Cr", "Maharashtra"),
+            const SizedBox(height: 20),
+            _buildMapStat("Market Growth", "+34.5%", "North Region"),
+            const SizedBox(height: 20),
+            _buildMapStat("Active Hubs", "12 Hubs", "Across India"),
+          ],
+        ],
       ),
     );
   }
