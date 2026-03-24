@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../responsive.dart';
+import '../../providers/user_provider.dart';
+import '../onboarding/onboarding_screen.dart';
 
 class SideMenu extends StatefulWidget {
   final Function(int)? onIndexChanged;
@@ -13,10 +16,26 @@ class _SideMenuState extends State<SideMenu> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
+    if (index == 24) { // Logout Index
+      _handleLogout();
+      return;
+    }
     setState(() {
       _selectedIndex = index;
     });
     widget.onIndexChanged?.call(index);
+  }
+
+  Future<void> _handleLogout() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.logout();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        (route) => false,
+      );
+    }
   }
 
   @override

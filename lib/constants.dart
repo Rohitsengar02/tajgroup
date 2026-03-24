@@ -32,4 +32,5 @@ const LinearGradient successGradient = LinearGradient(
   end: Alignment.bottomRight,
 );
 
-final String backendUrl = dotenv.get('BACKEND_URL', fallback: 'http://localhost:5000');
+// Forced Production URL for deployment stability
+const String backendUrl = 'https://tajgroup.onrender.com';

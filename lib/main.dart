@@ -12,17 +12,24 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print(
+      "Could not load .env file, using platform environment if available: $e",
+    );
+  }
+
   try {
     await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyDKbe1hZlsRmomHaLdoBXo2cuvOZg3t9Pc",
-        authDomain: "tajpro-ff56d.firebaseapp.com",
-        projectId: "tajpro-ff56d",
-        storageBucket: "tajpro-ff56d.firebasestorage.app",
-        messagingSenderId: "1033555319731",
-        appId: "1:1033555319731:web:b43ef15ff5c5e9dedf89c6",
-        measurementId: "G-RKR83E3LDW",
+      options: FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY'] ?? "",
+        authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? "",
+        projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? "",
+        storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? "",
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? "",
+        appId: dotenv.env['FIREBASE_APP_ID'] ?? "",
+        measurementId: dotenv.env['FIREBASE_MEASUREMENT_ID'] ?? "",
       ),
     );
   } catch (e) {
@@ -31,9 +38,7 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => UserProvider())],
       child: const MyApp(),
     ),
   );
@@ -57,11 +62,15 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.interTextTheme(),
         canvasColor: surfaceColor,
       ),
-      home: !userProvider.isInitialized 
-          ? const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryColor)))
-          : userProvider.isLoggedIn 
-              ? const MainScreenLoader() 
-              : const OnboardingScreen(),
+      home: !userProvider.isInitialized
+          ? const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: primaryColor),
+              ),
+            )
+          : userProvider.isLoggedIn
+          ? const MainScreenLoader()
+          : const OnboardingScreen(),
     );
   }
 }

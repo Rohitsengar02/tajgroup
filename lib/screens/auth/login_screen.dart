@@ -81,7 +81,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     bool isDesktop = Responsive.isDesktop(context);
