@@ -1,0 +1,487 @@
+Design a modern enterprise SaaS CRM + Distribution ERP dashboard web application for a field sales management system.
+
+The application manages:
+sales orders, distributors, retailers, routes, beats, inventory, team performance, payroll, reports, and analytics.
+
+The UI should be modern, minimal, and highly interactive with beautiful animations.
+
+DESIGN STYLE
+
+Modern SaaS Dashboard
+Clean enterprise UI
+Soft gradients
+Glassmorphism cards
+Smooth hover effects
+Micro-interactions
+Rounded components
+Professional analytics interface
+
+Inspired by products like:
+Stripe
+Notion
+Linear
+Zoho CRM
+HubSpot
+Monday
+Salesforce dashboards
+
+COLOR STYLE
+
+Primary Gradient
+#6C5CE7 → #3A86FF
+
+Secondary Gradient
+#FF7A18 → #FF3D81
+
+Accent colors
+Green for success
+Red for alerts
+Yellow for warnings
+
+Use soft shadows and depth for cards.
+
+Typography
+
+Headings:
+Inter / Satoshi
+
+Body:
+Inter / DM Sans
+
+Use large analytics numbers and clean typography.
+
+GLOBAL LAYOUT
+
+Left Sidebar Navigation
+Top Navbar
+Main Content Dashboard
+Cards Layout Grid
+
+Sidebar should support hover expand animation.
+
+TOP NAVBAR
+
+Search bar
+Notifications icon
+Messages icon
+Profile avatar
+Settings shortcut
+Quick actions button
+
+SIDEBAR MENU
+
+Dashboard
+
+Sales
+Orders
+Estimates / Quotations
+Proforma Invoice
+Payment In
+Delivery Challan
+Sales Return
+Secondary Sales
+Primary Sales
+
+Operations
+Customers
+Products
+Team
+
+Field Operations
+Beats
+Routes
+Network
+Inventory
+
+Performance
+Growth & Tracking
+Loyalty
+Schemes
+Targets
+Attendance
+
+Payroll & Salary
+
+Reports
+
+Settings
+
+DASHBOARD PAGE
+
+Create a powerful analytics dashboard.
+
+Sections:
+
+Welcome header
+User greeting
+Summary description
+
+KPI Analytics Cards
+Total Sales
+Active Customers
+Revenue
+Refund Requests
+
+Sales Performance Chart
+Monthly revenue bar chart
+
+Customer Orders Graph
+Line graph
+
+Sales by Regions Map
+Interactive world map
+Markers showing revenue
+Hover tooltips
+
+Top Products List
+Product image
+Price
+Performance
+
+Field Activity Panel
+Sales visits
+Orders created
+Team updates
+
+Team Performance Widget
+Top sales employees
+Progress bars
+
+Quick Actions
+Create Order
+Add Customer
+Assign Route
+
+AI Insights Widget
+Sales forecast
+Order prediction
+Inventory alert
+
+SALES MODULE
+
+Orders Page
+
+Analytics cards
+Total Orders
+Confirmed
+Processing
+Delivered
+
+Orders Table
+
+Columns
+
+Order ID
+Customer
+Salesperson
+Order Type
+Payment
+State
+Total
+Status
+Actions
+
+Buttons
+
+New Order
+Export
+Filter
+Import
+
+New Order Page
+
+Order Information Form
+
+Customer
+Salesperson
+Order Type
+Payment
+Delivery Address
+Order Date
+
+Order Items Table
+
+Product
+Batch
+Expiry
+MRP
+Quantity
+Price
+Discount
+Tax
+Total
+
+Summary Panel
+
+Subtotal
+Shipping
+Discount
+Tax
+Final Total
+
+OPERATIONS MODULE
+
+Customers Page
+
+Customer analytics cards
+
+Total Customers
+Retailers
+Distributors
+Outstanding Balance
+
+Customer Table
+
+Customer Name
+Shop Name
+GST
+Location
+Assigned Salesperson
+Credit Limit
+Status
+
+Customer Details Page
+
+Basic Info
+Shop Details
+Contact Info
+Preferred Products
+Credit Limit
+Notes
+
+Products Page
+
+Product analytics
+
+Total Products
+Stock Value
+Low Stock
+Out of Stock
+
+Product Grid
+
+Image
+Name
+SKU
+Stock
+Price
+
+FIELD OPERATIONS MODULE
+
+Beats Page
+
+Beat analytics
+
+Total Beats
+Total Outlets
+Coverage %
+Visits Today
+
+Beat cards
+
+Beat Name
+Assigned Salesperson
+Coverage
+Visit frequency
+
+Routes Page
+
+Route analytics
+
+Total Routes
+Total Stops
+Avg Duration
+Active Today
+
+Route cards
+
+Route Name
+Stops
+Distance
+Driver
+Vehicle
+
+Route Map Page
+
+Google map integration
+Route lines
+Stops markers
+Navigation path
+
+Route optimization button.
+
+Network Page
+
+Distributor hierarchy visualization
+
+HQ
+Super Stockists
+Distributors
+Retailers
+Salespersons
+
+Interactive hierarchy tree view.
+
+Inventory Page
+
+Inventory analytics
+
+Stock Value
+Low Stock
+Out of Stock
+Warehouse Value
+
+Inventory table
+
+Product
+Warehouse
+Stock
+Batch
+Expiry
+
+PERFORMANCE MODULE
+
+Growth Tracking Page
+
+Revenue growth cards
+Order growth cards
+Customer growth cards
+
+Charts
+
+Revenue trend
+Regional sales
+Performance comparison
+
+Loyalty Page
+
+Loyalty analytics
+
+Active Members
+Points Issued
+Redeemed Points
+Engagement %
+
+Loyalty tiers
+
+Bronze
+Silver
+Gold
+Platinum
+
+Schemes Page
+
+Active schemes cards
+
+Buy 2 Get 1
+Festival Discount
+Bulk Purchase Bonus
+
+Usage progress bars.
+
+Targets Page
+
+Sales targets
+
+Regional targets
+Team performance
+Achievement progress
+
+Attendance Page
+
+Attendance analytics
+
+Present
+Absent
+On Leave
+
+Weekly calendar
+
+Employee attendance list
+
+PAYROLL MODULE
+
+Payroll dashboard
+
+Total Payroll
+Paid Salary
+Pending Salary
+
+Salary Table
+
+Employee
+Base Salary
+Allowances
+Incentive
+Net Salary
+
+REPORTS MODULE
+
+Reports dashboard
+
+Daily Sales Report
+Weekly Performance
+Monthly Revenue
+Customer Analysis
+Inventory Status
+Collection Report
+
+Each report card includes download button.
+
+SETTINGS PAGE
+
+Company settings
+User roles
+Permissions
+ERP integrations
+Payment gateways
+Notifications
+
+ADVANCED FEATURES
+
+ERP Integration
+Tally
+Vyapar
+
+Payment Integration
+UPI
+Cards
+Online payments
+
+Google Maps
+Route tracking
+Sales visit tracking
+Geo fencing
+
+Notifications
+SMS
+WhatsApp
+Push notifications
+
+AI FEATURES
+
+Sales prediction
+Order probability forecasting
+Inventory demand forecasting
+Shelf image recognition
+
+ANIMATIONS
+
+Sidebar hover expand
+Card hover lift effect
+Smooth chart animations
+Button ripple effects
+Loading skeletons
+Map hover highlights
+
+INTERACTIONS
+
+Clickable cards
+Expandable tables
+Search filters
+Dropdown menus
+Floating action buttons
+
+Ensure the UI feels premium and modern.
+
+Create multiple web dashboard screens for all modules with beautiful analytics, charts, maps, gradients, hover effects, and micro-interactions.
