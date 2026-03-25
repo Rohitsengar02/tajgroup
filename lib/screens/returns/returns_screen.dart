@@ -1,29 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart';
 import '../../constants.dart';
 import '../../responsive.dart';
+import 'add_return_screen.dart';
 
-class SalesReturnScreen extends StatelessWidget {
+class SalesReturnScreen extends StatefulWidget {
   const SalesReturnScreen({super.key});
+
+  @override
+  State<SalesReturnScreen> createState() => _SalesReturnScreenState();
+}
+
+class _SalesReturnScreenState extends State<SalesReturnScreen> {
+  List<dynamic> _returns = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReturns();
+  }
+
+  Future<void> _fetchReturns() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await http.get(Uri.parse('$backendUrl/api/returns'));
+      if (response.statusCode == 200) {
+        setState(() => _returns = jsonDecode(response.body));
+      }
+    } catch (e) {
+      debugPrint("Error fetching returns: $e");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _navigateToAdd() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddReturnScreen()),
+    );
+    if (result == true) _fetchReturns();
+  }
+
+  void _navigateToEdit(Map<String, dynamic> data) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddReturnScreen(returnData: data)),
+    );
+    if (result == true) _fetchReturns();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _Header(),
-            const SizedBox(height: defaultPadding),
-            const _ReturnAnalytics(),
-            const SizedBox(height: defaultPadding * 1.5),
-            const _ReasonDistribution(),
-            const SizedBox(height: defaultPadding * 1.5),
-            const _ActionRow(),
-            const SizedBox(height: defaultPadding),
-            const _ReturnTable(),
-            const SizedBox(height: defaultPadding * 2),
-          ],
+      child: RefreshIndicator(
+        onRefresh: _fetchReturns,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _Header(),
+              const SizedBox(height: defaultPadding),
+              _ReturnAnalytics(returns: _returns),
+              const SizedBox(height: defaultPadding * 1.5),
+              _ReasonDistribution(returns: _returns),
+              const SizedBox(height: defaultPadding * 1.5),
+              _ActionRow(onAdd: _navigateToAdd),
+              const SizedBox(height: defaultPadding),
+              _isLoading 
+                  ? const Center(child: CircularProgressIndicator())
+                  : _ReturnTable(returns: _returns, onEdit: _navigateToEdit),
+              const SizedBox(height: defaultPadding * 2),
+            ],
+          ),
         ),
       ),
     );
@@ -54,15 +107,19 @@ class _Header extends StatelessWidget {
 }
 
 class _ReturnAnalytics extends StatelessWidget {
-  const _ReturnAnalytics();
+  final List<dynamic> returns;
+  const _ReturnAnalytics({required this.returns});
 
   @override
   Widget build(BuildContext context) {
+    int replaced = returns.where((r) => r['status'] == 'Replaced').length;
+    int refunded = returns.where((r) => r['status'] == 'Refunded').length;
+    
     bool isMobile = Responsive.isMobile(context);
     List<Widget> stats = [
-      _buildStatCard("Total Returns", "42", Icons.assignment_return_rounded, [const Color(0xFFEF4444), const Color(0xFFF87171)]),
-      _buildStatCard("Replaced", "28", Icons.cached_rounded, [const Color(0xFF6366F1), const Color(0xFF818CF8)]),
-      _buildStatCard("Refunded", "12", Icons.account_balance_wallet_rounded, [const Color(0xFFF59E0B), const Color(0xFFFBBF24)]),
+      _buildStatCard("Total Returns", returns.length.toString(), Icons.assignment_return_rounded, [const Color(0xFFEF4444), const Color(0xFFF87171)]),
+      _buildStatCard("Replaced", replaced.toString(), Icons.cached_rounded, [const Color(0xFF6366F1), const Color(0xFF818CF8)]),
+      _buildStatCard("Refunded", refunded.toString(), Icons.account_balance_wallet_rounded, [const Color(0xFFF59E0B), const Color(0xFFFBBF24)]),
       _buildStatCard("Return Rate", "2.4%", Icons.show_chart_rounded, [const Color(0xFF22C55E), const Color(0xFF4ADE80)]),
     ];
 
@@ -125,10 +182,16 @@ class _ReturnAnalytics extends StatelessWidget {
 }
 
 class _ReasonDistribution extends StatelessWidget {
-  const _ReasonDistribution();
+  final List<dynamic> returns;
+  const _ReasonDistribution({required this.returns});
 
   @override
   Widget build(BuildContext context) {
+    int total = returns.isEmpty ? 1 : returns.length;
+    double expired = returns.where((r) => r['reason'] == 'Expired').length / total;
+    double damaged = returns.where((r) => r['reason'] == 'Damaged').length / total;
+    double other = returns.where((r) => r['reason'] == 'Wrong Item' || r['reason'] == 'Quality Issue' || r['reason'] == 'Other').length / total;
+
     bool isMobile = Responsive.isMobile(context);
     return Container(
       padding: const EdgeInsets.all(24),
@@ -147,20 +210,20 @@ class _ReasonDistribution extends StatelessWidget {
           isMobile 
             ? Column(
                 children: [
-                  _buildReasonBar("Expired", 0.45, const Color(0xFFEF4444)),
+                  _buildReasonBar("Expired", expired, const Color(0xFFEF4444)),
                   const SizedBox(height: 16),
-                  _buildReasonBar("Damaged", 0.30, const Color(0xFFF59E0B)),
+                  _buildReasonBar("Damaged", damaged, const Color(0xFFF59E0B)),
                   const SizedBox(height: 16),
-                  _buildReasonBar("Wrong Item", 0.25, const Color(0xFF6366F1)),
+                  _buildReasonBar("Other Issues", other, const Color(0xFF6366F1)),
                 ],
               )
             : Row(
                 children: [
-                  Expanded(child: _buildReasonBar("Expired", 0.45, const Color(0xFFEF4444))),
+                  Expanded(child: _buildReasonBar("Expired", expired, const Color(0xFFEF4444))),
                   const SizedBox(width: 24),
-                  Expanded(child: _buildReasonBar("Damaged", 0.30, const Color(0xFFF59E0B))),
+                  Expanded(child: _buildReasonBar("Damaged", damaged, const Color(0xFFF59E0B))),
                   const SizedBox(width: 24),
-                  Expanded(child: _buildReasonBar("Wrong Item", 0.25, const Color(0xFF6366F1))),
+                  Expanded(child: _buildReasonBar("Other Issues", other, const Color(0xFF6366F1))),
                 ],
               ),
         ],
@@ -209,7 +272,8 @@ class _ReasonDistribution extends StatelessWidget {
 }
 
 class _ActionRow extends StatelessWidget {
-  const _ActionRow();
+  final VoidCallback onAdd;
+  const _ActionRow({required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +301,7 @@ class _ActionRow extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: onAdd,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFEF4444),
                   elevation: 0,
@@ -272,7 +336,7 @@ class _ActionRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: onAdd,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFEF4444),
                 elevation: 0,
@@ -288,17 +352,28 @@ class _ActionRow extends StatelessWidget {
 }
 
 class _ReturnTable extends StatelessWidget {
-  const _ReturnTable();
+  final List<dynamic> returns;
+  final Function(Map<String, dynamic>) onEdit;
+  const _ReturnTable({required this.returns, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> returns = [
-      {"id": "RT-8812", "customer": "Metro Agencies", "date": "05 Mar 2026", "items": "5 Boxes - Taj Tea", "reason": "Expired", "status": "Pending Inspection"},
-      {"id": "RT-8813", "customer": "Global Mart", "date": "04 Mar 2026", "items": "2 Units - Soap Pack", "reason": "Damaged", "status": "Approved"},
-      {"id": "RT-8814", "customer": "Sahani General", "date": "03 Mar 2026", "items": "12 Units - Sugar 1kg", "reason": "Wrong Item", "status": "Replaced"},
-    ];
-
     bool isMobile = Responsive.isMobile(context);
+
+    if (returns.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Column(
+            children: [
+              Icon(Icons.assignment_return_outlined, size: 64, color: textSecondaryColor.withValues(alpha: 0.2)),
+              const SizedBox(height: 16),
+              const Text("No return records found.", style: TextStyle(color: textSecondaryColor, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      );
+    }
 
     if (isMobile) {
       return ListView.separated(
@@ -306,7 +381,9 @@ class _ReturnTable extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: returns.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) => _ReturnMobileCard(data: returns[index]),
+        itemBuilder: (context, index) => InkWell(
+          onTap: () => onEdit(returns[index]),
+          child: _ReturnMobileCard(data: returns[index])),
       );
     }
 
@@ -327,7 +404,9 @@ class _ReturnTable extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: returns.length,
             separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.withValues(alpha: 0.05)),
-            itemBuilder: (context, index) => _ReturnRow(data: returns[index]),
+            itemBuilder: (context, index) => InkWell(
+              onTap: () => onEdit(returns[index]),
+              child: _ReturnRow(data: returns[index])),
           ),
         ],
       ),
@@ -363,11 +442,11 @@ class _ReturnMobileCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(data["id"], style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+              Text(data["returnId"] ?? "RT-XXXX", style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-                child: Text(data["status"], style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                child: Text(data["status"] ?? "Pending", style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -379,16 +458,16 @@ class _ReturnMobileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(data["customer"], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text(data["customerName"] ?? "Unknown", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                     const SizedBox(height: 4),
-                    Text(data["items"], style: const TextStyle(fontSize: 12, color: textSecondaryColor)),
+                    Text(data["items"] ?? "-", style: const TextStyle(fontSize: 12, color: textSecondaryColor)),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(4)),
-                child: Text(data["reason"], style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                child: Text(data["reason"] ?? "-", style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -396,7 +475,11 @@ class _ReturnMobileCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(data["date"], style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textSecondaryColor)),
+              Text(
+                data["returnDate"] != null 
+                  ? DateFormat('dd MMM yyyy').format(DateTime.parse(data["returnDate"]))
+                  : "-", 
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textSecondaryColor)),
               Icon(Icons.chevron_right_rounded, color: textSecondaryColor.withValues(alpha: 0.5)),
             ],
           ),
@@ -448,24 +531,28 @@ class _ReturnRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
-          Expanded(flex: 2, child: Text(data["id"], style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444)))),
+          Expanded(flex: 2, child: Text(data["returnId"] ?? "RT-XXXX", style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444)))),
           Expanded(flex: 3, child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(data["customer"], style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(data["items"], style: const TextStyle(fontSize: 10, color: textSecondaryColor)),
+              Text(data["customerName"] ?? "Unknown", style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(data["items"] ?? "-", style: const TextStyle(fontSize: 10, color: textSecondaryColor)),
             ],
           )),
           Expanded(flex: 2, child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(6)),
-            child: Text(data["reason"], style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+            child: Text(data["reason"] ?? "-", style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
           )),
-          Expanded(flex: 2, child: Text(data["date"], style: const TextStyle(fontSize: 12))),
+          Expanded(flex: 2, child: Text(
+            data["returnDate"] != null 
+              ? DateFormat('dd MMM yyyy').format(DateTime.parse(data["returnDate"]))
+              : "-", 
+            style: const TextStyle(fontSize: 12))),
           Expanded(flex: 2, child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-            child: Text(data["status"], style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            child: Text(data["status"] ?? "Pending", style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
           )),
         ],
       ),

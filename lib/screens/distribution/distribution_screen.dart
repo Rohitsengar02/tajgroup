@@ -1,27 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../constants.dart';
 import '../../responsive.dart';
+import 'add_distribution_screen.dart';
 
-class DistributionScreen extends StatelessWidget {
+class DistributionScreen extends StatefulWidget {
   const DistributionScreen({super.key});
+
+  @override
+  State<DistributionScreen> createState() => _DistributionScreenState();
+}
+
+class _DistributionScreenState extends State<DistributionScreen> {
+  List<dynamic> _distributions = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDistributions();
+  }
+
+  Future<void> _fetchDistributions() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await http.get(Uri.parse('$backendUrl/api/distribution'));
+      if (response.statusCode == 200) {
+        setState(() => _distributions = jsonDecode(response.body));
+      }
+    } catch (e) {
+      debugPrint("Error fetching distributions: $e");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteDistribution(String id) async {
+    try {
+      final response = await http.delete(Uri.parse('$backendUrl/api/distribution/$id'));
+      if (response.statusCode == 200) {
+        _fetchDistributions();
+      }
+    } catch (e) {
+      debugPrint("Error deleting distribution: $e");
+    }
+  }
+
+  void _navigateToAdd() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddDistributionScreen()),
+    );
+    if (result == true) _fetchDistributions();
+  }
+
+  void _navigateToUpdate(Map<String, dynamic> data) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddDistributionScreen(distribution: data)),
+    );
+    if (result == true) _fetchDistributions();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _DistributionHeader(),
-            const SizedBox(height: defaultPadding),
-            const _DistributionStats(),
-            const SizedBox(height: defaultPadding * 1.5),
-            const _SearchAndMapBar(),
-            const SizedBox(height: defaultPadding * 1.5),
-            const _DistributionGrid(),
-            const SizedBox(height: defaultPadding * 2),
-          ],
+      child: RefreshIndicator(
+        onRefresh: _fetchDistributions,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _DistributionHeader(onAdd: _navigateToAdd),
+              const SizedBox(height: defaultPadding),
+              _DistributionStats(distributions: _distributions),
+              const SizedBox(height: defaultPadding * 1.5),
+              const _SearchAndMapBar(),
+              const SizedBox(height: defaultPadding * 1.5),
+              _isLoading 
+                  ? const Center(child: CircularProgressIndicator())
+                  : _DistributionGrid(
+                      distributions: _distributions, 
+                      onEdit: _navigateToUpdate,
+                      onDelete: _deleteDistribution,
+                    ),
+              const SizedBox(height: defaultPadding * 2),
+            ],
+          ),
         ),
       ),
     );
@@ -29,21 +96,37 @@ class DistributionScreen extends StatelessWidget {
 }
 
 class _DistributionHeader extends StatelessWidget {
-  const _DistributionHeader();
+  final VoidCallback onAdd;
+  const _DistributionHeader({required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          "Distribution",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textPrimaryColor),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Distribution",
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textPrimaryColor),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Live logistics & delivery tracking",
+              style: TextStyle(fontSize: 14, color: textSecondaryColor, fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          "Live logistics & delivery tracking",
-          style: TextStyle(fontSize: 14, color: textSecondaryColor, fontWeight: FontWeight.w500),
+        ElevatedButton.icon(
+          onPressed: onAdd,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text("Add New", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryColor,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         ),
       ],
     );
@@ -51,10 +134,15 @@ class _DistributionHeader extends StatelessWidget {
 }
 
 class _DistributionStats extends StatelessWidget {
-  const _DistributionStats();
+  final List<dynamic> distributions;
+  const _DistributionStats({required this.distributions});
 
   @override
   Widget build(BuildContext context) {
+    int transit = distributions.where((d) => d['status'] == "In Transit").length;
+    int completed = distributions.where((d) => d['status'] == "Completed").length;
+    int pending = distributions.where((d) => d['status'] == "Pending").length;
+    
     return LayoutBuilder(builder: (context, constraints) {
       int crossAxisCount = Responsive.isMobile(context) ? 2 : 4;
       return GridView.count(
@@ -65,10 +153,10 @@ class _DistributionStats extends StatelessWidget {
         mainAxisSpacing: defaultPadding,
         childAspectRatio: 2.2,
         children: [
-          _buildStatCard("Active Vehicles", "8", Icons.local_shipping_outlined, const Color(0xFF6366F1)),
-          _buildStatCard("In Transit", "24", Icons.access_time_rounded, const Color(0xFFF59E0B)),
-          _buildStatCard("Delivered", "156", Icons.check_circle_outline_rounded, const Color(0xFF22C55E)),
-          _buildStatCard("Routes Covered", "12", Icons.map_outlined, const Color(0xFFA855F7)),
+          _buildStatCard("Active Vehicles", distributions.length.toString(), Icons.local_shipping_outlined, const Color(0xFF6366F1)),
+          _buildStatCard("In Transit", transit.toString(), Icons.access_time_rounded, const Color(0xFFF59E0B)),
+          _buildStatCard("Delivered", completed.toString(), Icons.check_circle_outline_rounded, const Color(0xFF22C55E)),
+          _buildStatCard("Pending", pending.toString(), Icons.map_outlined, const Color(0xFFA855F7)),
         ],
       );
     });
@@ -186,10 +274,31 @@ class _SearchAndMapBar extends StatelessWidget {
 }
 
 class _DistributionGrid extends StatelessWidget {
-  const _DistributionGrid();
+  final List<dynamic> distributions;
+  final Function(Map<String, dynamic>) onEdit;
+  final Function(String) onDelete;
+  
+  const _DistributionGrid({
+    required this.distributions, 
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (distributions.isEmpty) {
+      return Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            Icon(Icons.local_shipping_outlined, size: 64, color: textSecondaryColor.withValues(alpha: 0.2)),
+            const SizedBox(height: 16),
+            const Text("No active distributions found.", style: TextStyle(color: textSecondaryColor, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      );
+    }
+
     return LayoutBuilder(builder: (context, constraints) {
       int crossAxisCount = Responsive.isMobile(context) ? 1 : (Responsive.isTablet(context) ? 2 : 3);
       return GridView.builder(
@@ -199,28 +308,29 @@ class _DistributionGrid extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: defaultPadding,
           mainAxisSpacing: defaultPadding,
-          childAspectRatio: 1.6,
+          childAspectRatio: 1.4,
         ),
-        itemCount: 5,
+        itemCount: distributions.length,
         itemBuilder: (context, index) {
-          final drivers = [
-            {"initial": "RK", "name": "Rajesh Kumar", "vehicle": "MH-12-AB-1234", "status": "In Transit", "statusColor": const Color(0xFF3B82F6), "route": "Downtown", "orders": "8/12", "eta": "4:30 PM", "progress": 0.6},
-            {"initial": "SP", "name": "Suresh Patel", "vehicle": "MH-12-CD-5678", "status": "Completed", "statusColor": const Color(0xFF22C55E), "route": "Market Area", "orders": "15/15", "eta": "-", "progress": 1.0},
-            {"initial": "AS", "name": "Amit Singh", "vehicle": "MH-12-EF-9012", "status": "In Transit", "statusColor": const Color(0xFF3B82F6), "route": "Industrial", "orders": "3/10", "eta": "5:00 PM", "progress": 0.3},
-            {"initial": "VS", "name": "Vijay Sharma", "vehicle": "MH-12-GH-3456", "status": "Pending", "statusColor": const Color(0xFFF59E0B), "route": "Residential", "orders": "0/8", "eta": "-", "progress": 0.0},
-            {"initial": "MG", "name": "Manoj Gupta", "vehicle": "MH-12-IJ-7890", "status": "Completed", "statusColor": const Color(0xFF22C55E), "route": "Highway", "orders": "6/6", "eta": "-", "progress": 1.0},
-          ];
-          final driver = drivers[index];
+          final driver = distributions[index];
+          
+          Color statusColor = const Color(0xFF3B82F6);
+          if (driver['status'] == 'Completed') statusColor = const Color(0xFF22C55E);
+          if (driver['status'] == 'Pending') statusColor = const Color(0xFFF59E0B);
+
           return _DriverCard(
-            initial: driver["initial"] as String,
-            name: driver["name"] as String,
-            vehicle: driver["vehicle"] as String,
-            status: driver["status"] as String,
-            statusColor: driver["statusColor"] as Color,
-            route: driver["route"] as String,
-            orders: driver["orders"] as String,
-            eta: driver["eta"] as String,
-            progress: driver["progress"] as double,
+            id: driver['_id'],
+            initial: driver["initials"] ?? "D",
+            name: driver["driverName"] ?? "Unknown",
+            vehicle: driver["vehicleNumber"] ?? "-",
+            status: driver["status"] ?? "Pending",
+            statusColor: statusColor,
+            route: driver["route"] ?? "No Route",
+            orders: "${driver['completedOrders']}/${driver['totalOrders']}",
+            eta: driver["eta"] ?? "-",
+            progress: (driver["progress"] ?? 0.0).toDouble(),
+            onEdit: () => onEdit(driver),
+            onDelete: () => onDelete(driver['_id']),
           );
         },
       );
@@ -229,11 +339,14 @@ class _DistributionGrid extends StatelessWidget {
 }
 
 class _DriverCard extends StatefulWidget {
-  final String initial, name, vehicle, status, route, orders, eta;
+  final String id, initial, name, vehicle, status, route, orders, eta;
   final Color statusColor;
   final double progress;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const _DriverCard({
+    required this.id,
     required this.initial,
     required this.name,
     required this.vehicle,
@@ -243,6 +356,8 @@ class _DriverCard extends StatefulWidget {
     required this.orders,
     required this.eta,
     required this.progress,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -293,20 +408,22 @@ class _DriverCardState extends State<_DriverCard> {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: widget.statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    widget.status,
-                    style: TextStyle(color: widget.statusColor, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, size: 20, color: textSecondaryColor),
+                  onSelected: (v) {
+                    if (v == 'edit') widget.onEdit();
+                    if (v == 'delete') widget.onDelete();
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 18), SizedBox(width: 8), Text("Edit")])),
+                    const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 18, color: Colors.red), SizedBox(width: 8), Text("Delete", style: TextStyle(color: Colors.red))])),
+                  ],
                 ),
               ],
             ),
             const Spacer(),
+            _buildInfoRow("Status:", widget.status, color: widget.statusColor),
+            const SizedBox(height: 8),
             _buildInfoRow("Route:", widget.route),
             const SizedBox(height: 8),
             _buildInfoRow("Orders:", widget.orders),
@@ -321,7 +438,7 @@ class _DriverCardState extends State<_DriverCard> {
                   decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(10)),
                 ),
                 FractionallySizedBox(
-                  widthFactor: widget.progress,
+                  widthFactor: widget.progress.clamp(0.0, 1.0),
                   child: Container(
                     height: 4,
                     decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(10)),
@@ -335,12 +452,12 @@ class _DriverCardState extends State<_DriverCard> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String label, String value, {Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: const TextStyle(fontSize: 13, color: textSecondaryColor, fontWeight: FontWeight.w500)),
-        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textPrimaryColor)),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color ?? textPrimaryColor)),
       ],
     );
   }

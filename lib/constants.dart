@@ -32,5 +32,5 @@ const LinearGradient successGradient = LinearGradient(
   end: Alignment.bottomRight,
 );
 
-// Forced Production URL for deployment stability
-const String backendUrl = 'https://tajgroup.onrender.com';
+// Local Backend URL for development
+const String backendUrl = 'http://localhost:5000';

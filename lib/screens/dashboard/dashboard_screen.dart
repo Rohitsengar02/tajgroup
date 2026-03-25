@@ -1824,6 +1824,50 @@ class _MarketMap extends StatelessWidget {
                       subdomains: const ['a', 'b', 'c', 'd'],
                       userAgentPackageName: 'com.tajpro.app',
                     ),
+                    PolygonLayer(
+                      polygons: [
+                        // Maharashtra / Western Hub
+                        Polygon(
+                          points: const [
+                            LatLng(20.0, 72.0), LatLng(22.0, 76.0), LatLng(18.0, 78.0), 
+                            LatLng(16.0, 74.0), LatLng(18.0, 72.0),
+                          ],
+                          color: const Color(0xFF3B82F6).withOpacity(0.5),
+                          borderStrokeWidth: 2,
+                          borderColor: const Color(0xFF3B82F6),
+                        ),
+                        // Delhi / Northern Hub
+                        Polygon(
+                          points: const [
+                            LatLng(28.0, 76.0), LatLng(30.0, 77.0), LatLng(30.0, 79.0), 
+                            LatLng(27.0, 79.0), LatLng(27.0, 77.0),
+                          ],
+                          color: const Color(0xFF3B82F6).withOpacity(0.5),
+                          borderStrokeWidth: 2,
+                          borderColor: const Color(0xFF3B82F6),
+                        ),
+                        // Karnataka / Southern Hub
+                        Polygon(
+                          points: const [
+                            LatLng(13.0, 74.0), LatLng(15.0, 76.0), LatLng(15.0, 78.0), 
+                            LatLng(12.0, 78.0), LatLng(11.0, 76.0),
+                          ],
+                          color: const Color(0xFF3B82F6).withOpacity(0.5),
+                          borderStrokeWidth: 2,
+                          borderColor: const Color(0xFF3B82F6),
+                        ),
+                        // West Bengal / Eastern Hub
+                        Polygon(
+                          points: const [
+                            LatLng(22.0, 86.0), LatLng(24.0, 87.0), LatLng(24.0, 89.0), 
+                            LatLng(21.0, 89.0), LatLng(21.0, 87.0),
+                          ],
+                          color: const Color(0xFF3B82F6).withOpacity(0.5),
+                          borderStrokeWidth: 2,
+                          borderColor: const Color(0xFF3B82F6),
+                        ),
+                      ],
+                    ),
                     MarkerLayer(
                       markers: [
                         _buildMapMarker(context, const LatLng(19.0760, 72.8777), "Mumbai Cluster", "₹ 42.5L", isHighlighted: true),

@@ -17,6 +17,8 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 const schemeRoutes = require('./routes/schemeRoutes');
 const proformaRoutes = require('./routes/proformaRoutes');
 const challanRoutes = require('./routes/challanRoutes');
+const distributionRoutes = require('./routes/distributionRoutes');
+const salesReturnRoutes = require('./routes/salesReturnRoutes');
 
 dotenv.config();
 
@@ -44,6 +46,8 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/proformas', proformaRoutes);
 app.use('/api/challans', challanRoutes);
+app.use('/api/distribution', distributionRoutes);
+app.use('/api/returns', salesReturnRoutes);
 
 const PORT = process.env.PORT || 5000;
 
